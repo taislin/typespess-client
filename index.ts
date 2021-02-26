@@ -1,3 +1,4 @@
+export{};
 const TypespessClient = require("./client/index.js");
 const {Eye, Plane} = TypespessClient;
 const {ParallaxPlane} = require("./code/parallax.js");
