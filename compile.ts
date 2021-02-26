@@ -20,6 +20,7 @@ used_bundler.bundle(function (err: string, buf: any) {
 		throw new Error(err);
 	}
 	fs.writeFile(destination+"client.js", buf, function (err2: string) {
+		console.info("COMPILE: compiled into "+destination);
 		if (err2) {
 			throw new Error(err2);
 		}
