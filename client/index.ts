@@ -44,8 +44,6 @@ class TypespessClient extends EventEmitter {
 	}
 	handle_server() {
 		if (isElectron()) {
-			global.server_url = "localhost";
-		
 			this.panel_manager.create_client_panel({
 				title: "Choose a Server",
 				can_close: false,
@@ -60,10 +58,10 @@ class TypespessClient extends EventEmitter {
 		if (global.is_bs_editor_env) {
 			throw new Error("Client should not be started in editor mode");
 		}
-		this.connection = new WebSocket(this.wsurl);
 		this.panel_manager = new PanelManager(this);
+		this.handle_server();
+		this.connection = new WebSocket(this.wsurl);
 		this.connection.addEventListener("open", () => {
-			this.handle_server();
 			this.handle_login();
 		});
 		window.addEventListener(

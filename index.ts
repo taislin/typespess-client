@@ -3,6 +3,8 @@ const TypespessClient = require("./client/index.js");
 const {Eye, Plane} = TypespessClient;
 const {ParallaxPlane} = require("./code/parallax.js");
 
+global.server_url = "localhost";
+
 // Just a small little polyfill for Edge (fuck you edge by the way)
 for (const collection_class of [HTMLCollection, NodeList, DOMTokenList]) {
 	if (!collection_class.prototype[Symbol.iterator]) {
