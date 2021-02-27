@@ -42,7 +42,20 @@ class TypespessClient extends EventEmitter {
 		this.connection.send(JSON.stringify({login: "guest" + Math.floor(Math.random() * 1000000)}));
 		this.login_finish();
 	}
-
+	handle_server() {
+		if (isElectron()) {
+			global.server_url = "localhost";
+		
+			this.panel_manager.create_client_panel({
+				title: "Choose a Server",
+				can_close: false,
+				content_class: "ServerPanel",
+				width: 400,
+				height: 250,
+			});
+		
+		}
+	}
 	login() {
 		if (global.is_bs_editor_env) {
 			throw new Error("Client should not be started in editor mode");
@@ -50,6 +63,7 @@ class TypespessClient extends EventEmitter {
 		this.connection = new WebSocket(this.wsurl);
 		this.panel_manager = new PanelManager(this);
 		this.connection.addEventListener("open", () => {
+			this.handle_server();
 			this.handle_login();
 		});
 		window.addEventListener(

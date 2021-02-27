@@ -2,7 +2,7 @@ export{};
 const TypespessClient = require("./client/index.js");
 const {Eye, Plane} = TypespessClient;
 const {ParallaxPlane} = require("./code/parallax.js");
-const isElectron = require("is-electron");
+
 // Just a small little polyfill for Edge (fuck you edge by the way)
 for (const collection_class of [HTMLCollection, NodeList, DOMTokenList]) {
 	if (!collection_class.prototype[Symbol.iterator]) {
@@ -65,18 +65,6 @@ if (global.is_bs_editor_env) {
 				}
 			}
 		});
-		if (isElectron()) {
-			global.server_url = "localhost";
-		
-			client.panel_manager.create_client_panel({
-				title: "Choose a Server",
-				can_close: false,
-				content_class: "ServerPanel",
-				width: 400,
-				height: 250,
-			});
-		
-		}
 		client.login();
 	});
 }
