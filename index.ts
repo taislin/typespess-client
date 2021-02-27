@@ -29,19 +29,7 @@ client.importModule(require("./code/ui/preferences.js"));
 client.importModule(require("./code/ui/spawn_object.js"));
 client.importModule(require("./code/ui/stack_craft.js"));
 client.importModule(require("./code/ui/strip.js"));
-//if the client is running on the Electron app, let the user choose the server
-if (isElectron()) {
-	global.server_url = "localhost";
 
-	client.panel_manager.create_client_panel({
-		title: "Choose a Server",
-		can_close: false,
-		content_class: "ServerPanel",
-		width: 400,
-		height: 250,
-	});
-
-}
 if (global.is_bs_editor_env) {
 	module.exports = client;
 } else {
@@ -77,7 +65,18 @@ if (global.is_bs_editor_env) {
 				}
 			}
 		});
-
+		if (isElectron()) {
+			global.server_url = "localhost";
+		
+			client.panel_manager.create_client_panel({
+				title: "Choose a Server",
+				can_close: false,
+				content_class: "ServerPanel",
+				width: 400,
+				height: 250,
+			});
+		
+		}
 		client.login();
 	});
 }
