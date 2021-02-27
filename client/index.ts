@@ -13,7 +13,7 @@ class TypespessClient extends EventEmitter {
 	constructor(wsurl: string, resRoot = "") {
 		super();
 		if (!wsurl) {wsurl = "ws" + window.location.origin.substring(4);}
-		if (isElectron()) {wsurl = "ws://localhost:1713";}
+		if (isElectron() && global.server_url) {wsurl = `ws://${global.server_url}:1713`;}
 		this.resRoot = resRoot;
 		this.wsurl = wsurl;
 		this.atoms_by_netid = {};

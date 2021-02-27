@@ -2,7 +2,7 @@ export{};
 const TypespessClient = require("./client/index.js");
 const {Eye, Plane} = TypespessClient;
 const {ParallaxPlane} = require("./code/parallax.js");
-
+const isElectron = require("is-electron");
 // Just a small little polyfill for Edge (fuck you edge by the way)
 for (const collection_class of [HTMLCollection, NodeList, DOMTokenList]) {
 	if (!collection_class.prototype[Symbol.iterator]) {
@@ -22,13 +22,26 @@ client.importModule(require("./code/ui/admin_menu.js"));
 client.importModule(require("./code/ui/chem_dispenser.js"));
 client.importModule(require("./code/ui/latejoin.js"));
 client.importModule(require("./code/ui/login.js"));
+client.importModule(require("./code/ui/server.js"));
 client.importModule(require("./code/ui/machine_wires.js"));
 client.importModule(require("./code/ui/new_player.js"));
 client.importModule(require("./code/ui/preferences.js"));
 client.importModule(require("./code/ui/spawn_object.js"));
 client.importModule(require("./code/ui/stack_craft.js"));
 client.importModule(require("./code/ui/strip.js"));
+//if the client is running on the Electron app, let the user choose the server
+if (isElectron()) {
+	global.server_url = "localhost";
 
+	client.panel_manager.create_client_panel({
+		title: "Choose a Server",
+		can_close: false,
+		content_class: "ServerPanel",
+		width: 400,
+		height: 250,
+	});
+
+}
 if (global.is_bs_editor_env) {
 	module.exports = client;
 } else {
