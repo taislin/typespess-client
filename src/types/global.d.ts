@@ -7,7 +7,6 @@ declare namespace NodeJS {
 		is_bs_editor_env: boolean;
 		is_test_env: boolean;
 		workspaceDir: string;
-		server_url: string;
 	}
 }
 

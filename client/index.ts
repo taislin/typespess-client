@@ -13,7 +13,6 @@ class TypespessClient extends EventEmitter {
 	constructor(wsurl: string, resRoot = "") {
 		super();
 		if (!wsurl) {wsurl = "ws" + window.location.origin.substring(4);}
-		if (isElectron() && global.server_url) {wsurl = `ws://${global.server_url}:1713`;}
 		this.resRoot = resRoot;
 		this.wsurl = wsurl;
 		this.atoms_by_netid = {};
@@ -51,22 +50,25 @@ class TypespessClient extends EventEmitter {
 				width: 400,
 				height: 250,
 			});
-		
 		}
+		else {this.resume_login("localhost");}
 	}
+
 	login() {
 		if (global.is_bs_editor_env) {
 			throw new Error("Client should not be started in editor mode");
 		}
 		this.panel_manager = new PanelManager(this);
 		this.handle_server();
+	}
+
+	resume_login(server_url = "localhost") {
+		if (isElectron()) {this.wsurl = `ws://${server_url}:1713`;}
 		this.connection = new WebSocket(this.wsurl);
 		this.connection.addEventListener("open", () => {
 			this.handle_login();
 		});
-		window.addEventListener(
-			"mousedown",
-			() => {
+		window.addEventListener("mousedown", () => {
 				// damn it chrome
 				this.audio_ctx.resume();
 			},
