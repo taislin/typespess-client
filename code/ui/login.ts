@@ -19,11 +19,11 @@ class LoginPanel {
 			let nvers2: string = obj.min_client_version;
 			nvers2 = nvers2.replace(".","");
 			const nvers2_num = Number(nvers2);
-			if (nvers_num < nvers2_num) {
+			if (nvers_num >= nvers2_num) {
 				console.info(`Client is running version ${global.client_version}.`);
 			}
 			else {
-				console.error(`Outdated client! This client has version ${global.client_version} and the server requires <b>${obj.min_client_version}</b> or newer.`);
+				console.error(`Outdated client! This client has version ${global.client_version} and the server requires ${obj.min_client_version} or newer.`);
 				const div = document.createElement("div");
 				div.classList.add("vertical-margins");
 				const text_warning = document.createElement("P");
