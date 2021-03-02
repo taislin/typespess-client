@@ -24,6 +24,7 @@ class LoginPanel {
 			}
 			else {
 				console.error(`Outdated client! This client has version ${global.client_version} and the server requires ${obj.min_client_version} or newer.`);
+				this.panel.container_obj.style.height = "200px";
 				const div = document.createElement("div");
 				div.classList.add("vertical-margins");
 				const text_warning = document.createElement("P");
