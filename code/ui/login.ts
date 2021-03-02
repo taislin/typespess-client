@@ -12,6 +12,26 @@ class LoginPanel {
 
 	message_handler(e: Record<string, any>) {
 		const obj = JSON.parse(e.data);
+		if (obj.min_client_version) {
+			let nvers: string = global.client_version;
+			nvers = nvers.replace(".","");
+			const nvers_num = Number(nvers);
+			let nvers2: string = obj.min_client_version;
+			nvers2 = nvers2.replace(".","");
+			const nvers2_num = Number(nvers2);
+			if (nvers_num < nvers2_num) {
+				console.info(`Client is running version ${global.client_version}.`);
+			}
+			else {
+				console.error(`Outdated client! This client has version ${global.client_version} and the server requires <b>${obj.min_client_version}</b> or newer.`);
+				const div = document.createElement("div");
+				div.classList.add("vertical-margins");
+				const text_warning = document.createElement("P");
+				text_warning.innerHTML = `Outdated client! This client has version <b>${global.client_version}</b> and the server requires <b>${obj.min_client_version}</b> or newer.`;
+				div.appendChild(text_warning);
+				this.connection.removeEventListener("message", this.message_handler);
+			}
+		}
 		if (obj.login_type === "debug") {
 			let div = document.createElement("div");
 			div.classList.add("vertical-margins");

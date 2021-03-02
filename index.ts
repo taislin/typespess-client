@@ -2,13 +2,15 @@ export{};
 const TypespessClient = require("./client/index.js");
 const {Eye, Plane} = TypespessClient;
 const {ParallaxPlane} = require("./code/parallax.js");
-
+const fs = require("fs");
 // Just a small little polyfill for Edge (fuck you edge by the way)
 for (const collection_class of [HTMLCollection, NodeList, DOMTokenList]) {
 	if (!collection_class.prototype[Symbol.iterator]) {
 		collection_class.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];
 	}
 }
+
+global.client_version = "0.1.0";
 
 const client = new TypespessClient();
 client.importModule(require("./code/alert.js"));
