@@ -32,7 +32,7 @@ class LoginPanel {
 				this.connection.removeEventListener("message", this.message_handler);
 			}
 		}
-		if (obj.login_type === "debug") {
+		else if (obj.login_type === "debug") {
 			let div = document.createElement("div");
 			div.classList.add("vertical-margins");
 			const text_input = document.createElement("input");
