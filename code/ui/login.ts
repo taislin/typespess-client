@@ -29,6 +29,7 @@ class LoginPanel {
 				const text_warning = document.createElement("P");
 				text_warning.innerHTML = `Outdated client! This client has version <b>${global.client_version}</b> and the server requires <b>${obj.min_client_version}</b> or newer.`;
 				div.appendChild(text_warning);
+				this.panel.content_obj.appendChild(div);
 				this.connection.removeEventListener("message", this.message_handler);
 			}
 		}
