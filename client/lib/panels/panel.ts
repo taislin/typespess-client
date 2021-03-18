@@ -45,8 +45,6 @@ class Panel extends EventEmitter {
 		if (can_close) {
 			this.close_button = document.createElement("div");
 			this.close_button.classList.add("uiframe-close-button");
-			this.title_node = document.createTextNode("X");
-			this.close_button.appendChild(this.title_node);
 			this.header_obj.appendChild(this.close_button);
 
 			this.close_button.addEventListener("click", () => {
