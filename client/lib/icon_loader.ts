@@ -13,7 +13,6 @@ function enqueue_icon_meta_load(client: Record<string, any>, newIcon: string) {
 		meta.__image_object = new Image();
 		const fullpath: string = client.resRoot + newIcon;
 		meta.__image_object.src = fullpath;
-
 		meta.__image_object.addEventListener("load", () => {
 			meta.__image_object.canvas = document.createElement("canvas");
 			meta.__image_object.ctx = meta.__image_object.canvas.getContext("2d");
