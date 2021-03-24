@@ -1412,25 +1412,29 @@ class IconRenderer {
         this.change_level = 0;
         this._offset_x = 0;
         this._offset_y = 0;
+        this.genicon = "";
         if (!this.dir) {
             this.dir = 1;
         }
     }
     // Returns a promise that is resolved when the icon is fully loaded (json and image)
     fully_load(forced_directional = false) {
-        if (this.icon_meta || !this.icon) {
+        if (this.icon_meta || !this.genicon) {
             return Promise.resolve();
         }
-        if (this.icon && this.icon_state && this.icon.search(".png") === -1) {
+        if (this.icon && this.icon.search(".png") !== -1) {
+            this.genicon = this.icon;
+        }
+        else if (this.icon && this.icon_state && this.icon.search(".png") === -1) {
             if (this.atom.directional === true || forced_directional === true ||
                 (this.icon.search("icons/mob/") !== -1 && this.icon.search("icons/mob/under/") === -1)) {
-                this.icon = `${this.icon}${this.icon_state}/${this.icon_state}-dir${this.dir}.png`;
+                this.genicon = `${this.icon}${this.icon_state}/${this.icon_state}-dir${this.dir}.png`;
             }
             else {
-                this.icon = `${this.icon}${this.icon_state}.png`;
+                this.genicon = `${this.icon}${this.icon_state}.png`;
             }
         }
-        return this.client.enqueue_icon_meta_load(this.client, this.icon);
+        return this.client.enqueue_icon_meta_load(this.client, this.genicon);
     }
     get_bounds() {
         if (!this.icon_meta) {
@@ -1447,11 +1451,9 @@ class IconRenderer {
     check_levels() {
         if (this.icon !== this.last_icon) {
             this.change_level = Math.max(this.change_level, CHANGE_LEVEL_ICON);
-            this.last_icon = this.icon;
         }
         else if (this.icon_state !== this.last_icon_state) {
             this.change_level = Math.max(this.change_level, CHANGE_LEVEL_ICON_STATE);
-            this.last_icon_state = this.icon_state;
         }
         else if (this.dir !== this.last_dir) {
             this.change_level = Math.max(this.change_level, CHANGE_LEVEL_DIR);
@@ -1464,29 +1466,32 @@ class IconRenderer {
             this.atom.mark_dirty();
         }
         if (this.change_level >= CHANGE_LEVEL_DIR) {
-            this.icon_meta = this.atom.client.icon_metas[this.icon];
-            if (typeof this.icon_meta === "undefined") {
+            if (this.icon && this.icon.search(".png") !== -1) {
+                this.genicon = this.icon;
+            }
+            this.icon_meta = null;
+            if (this.atom.client.icon_metas[this.genicon]) {
+                this.icon_meta = this.atom.client.icon_metas[this.genicon];
+            }
+            if (this.icon_meta === null || this.genicon === "" || this.icon !== this.last_icon || this.icon_state !== this.last_icon_state) {
                 this.change_level = CHANGE_LEVEL_NONE;
-                const enqueued_icon = this.icon;
-                if (this.icon && this.icon_state && this.icon.search(".png") === -1) {
-                    if (this.atom.directional === true ||
-                        (this.icon.search("icons/mob/") !== -1 && this.icon.search("icons/mob/under/") === -1)) {
-                        this.icon = `${this.icon}${this.icon_state}/${this.icon_state}-dir${this.dir}.png`;
-                    }
-                    else {
-                        this.icon = `${this.icon}${this.icon_state}.png`;
-                    }
-                }
-                else if (this.icon_state === "") {
+                const enqueued_icon = this.genicon;
+                const icocheck = this.get_directional();
+                if (icocheck === false) {
                     return;
-                } //if theres no icon state - don't draw.
-                if (!this.icon) {
-                    this.icon = "icons/nothing.png";
                 }
+                if (!this.genicon) {
+                    this.genicon = "icons/nothing.png";
+                }
+                this.last_icon_state = this.icon_state;
+                this.last_icon = this.icon;
                 this.atom.client
-                    .enqueue_icon_meta_load(this.atom.client, this.icon)
+                    .enqueue_icon_meta_load(this.atom.client, this.genicon)
                     .then(() => {
-                    if (this.icon === enqueued_icon) {
+                    if (this.atom.client.icon_metas[this.genicon]) {
+                        this.icon_meta = this.atom.client.icon_metas[this.genicon];
+                    }
+                    if (this.genicon === enqueued_icon) {
                         this.change_level = CHANGE_LEVEL_ICON;
                     }
                 })
@@ -1529,6 +1534,21 @@ class IconRenderer {
         }
         const offset = this.get_offset();
         ctx.drawImage(image, 0, 0, this.icon_meta.width, this.icon_meta.height, Math.round(offset[0] * 32), Math.round(-offset[1] * 32), this.icon_meta.width, this.icon_meta.height);
+    }
+    get_directional() {
+        if (this.icon && this.icon_state && this.icon.search(".png") === -1) {
+            if (this.atom.directional === true ||
+                (this.icon.search("icons/mob/") !== -1 && this.icon.search("icons/mob/under/") === -1)) {
+                this.genicon = `${this.icon}${this.icon_state}/${this.icon_state}-dir${this.dir}.png`;
+            }
+            else {
+                this.genicon = `${this.icon}${this.icon_state}.png`;
+            }
+        }
+        else if (this.icon_state === "" && this.icon === "") {
+            return false;
+        } //if theres no icon state - don't draw.
+        return true;
     }
     is_mouse_over(x, y) {
         if (!this.icon_meta || !this.icon_meta.__image_data) {
