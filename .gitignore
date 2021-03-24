@@ -105,3 +105,4 @@ dist
 
 *.js
 workspace.code-workspace
+client.js
