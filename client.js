@@ -1377,8 +1377,11 @@ function enqueue_icon_meta_load(client, newIcon) {
             meta.__image_object.canvas.height = meta.__image_object.height;
             meta.__image_object.ctx.drawImage(meta.__image_object, 0, 0);
             meta.__image_data = meta.__image_object.ctx.getImageData(0, 0, meta.width, meta.height);
-            meta.width = meta.__image_object.width;
             meta.height = meta.__image_object.height;
+            meta.animated_nr = Math.round(meta.__image_object.width / meta.__image_object.height);
+            console.log(meta.animated_nr);
+            meta.width = meta.height;
+            meta.animated = meta.animated_nr > 1 ? 1 : 0;
             resolve();
             client.icon_meta_load_queue[newIcon] = void 0;
         });
@@ -1412,6 +1415,7 @@ class IconRenderer {
         this.change_level = 0;
         this._offset_x = 0;
         this._offset_y = 0;
+        this.icon_frame = 0;
         this.genicon = "";
         if (!this.dir) {
             this.dir = 1;
@@ -1503,7 +1507,6 @@ class IconRenderer {
             }
         }
         this.change_level = CHANGE_LEVEL_NONE;
-        this.icon_frame = 0;
     }
     draw(ctx) {
         if (!this.icon_meta || !this.icon_meta.__image_object) {
@@ -1511,11 +1514,20 @@ class IconRenderer {
         }
         let image = this.icon_meta.__image_object;
         let tcolor = null;
+        let nindex_x = 0;
+        const nindex_y = 0;
         if (this.color) {
             tcolor = this.color;
         }
         else if (this.icon_meta.color) {
             tcolor = this.icon_meta.color;
+        }
+        if (this.icon_meta.animated) {
+            nindex_x = this.icon_meta.__image_object.height * Math.floor(this.icon_frame);
+            this.icon_frame += 0.1;
+            if (this.icon_frame >= this.icon_meta.animated_nr) {
+                this.icon_frame = 0;
+            }
         }
         if (tcolor) {
             color_canvas.width = Math.max(color_canvas.width, this.icon_meta.width);
@@ -1524,16 +1536,16 @@ class IconRenderer {
             cctx.clearRect(0, 0, this.icon_meta.width + 1, this.icon_meta.height + 1);
             cctx.fillStyle = this.color;
             cctx.globalCompositeOperation = "source-over";
-            cctx.drawImage(image, 0, 0, this.icon_meta.width, this.icon_meta.height, 0, 0, this.icon_meta.width, this.icon_meta.height);
+            cctx.drawImage(image, nindex_x, nindex_y, this.icon_meta.width, this.icon_meta.height, 0, 0, this.icon_meta.width, this.icon_meta.height);
             cctx.globalCompositeOperation = "multiply";
             cctx.fillRect(0, 0, this.icon_meta.width, this.icon_meta.height);
             cctx.globalCompositeOperation = "destination-in";
-            cctx.drawImage(image, 0, 0, this.icon_meta.width, this.icon_meta.height, 0, 0, this.icon_meta.width, this.icon_meta.height);
+            cctx.drawImage(image, nindex_x, nindex_y, this.icon_meta.width, this.icon_meta.height, 0, 0, this.icon_meta.width, this.icon_meta.height);
             cctx.globalCompositeOperation = "source-over";
             image = color_canvas;
         }
         const offset = this.get_offset();
-        ctx.drawImage(image, 0, 0, this.icon_meta.width, this.icon_meta.height, Math.round(offset[0] * 32), Math.round(-offset[1] * 32), this.icon_meta.width, this.icon_meta.height);
+        ctx.drawImage(image, nindex_x, nindex_y, this.icon_meta.width, this.icon_meta.height, Math.round(offset[0] * 32), Math.round(-offset[1] * 32), this.icon_meta.width, this.icon_meta.height);
     }
     get_directional() {
         if (this.icon && this.icon_state && this.icon.search(".png") === -1) {
@@ -4787,31 +4799,52 @@ function unwrapListeners(arr) {
 
 function once(emitter, name) {
   return new Promise(function (resolve, reject) {
-    function eventListener() {
-      if (errorListener !== undefined) {
+    function errorListener(err) {
+      emitter.removeListener(name, resolver);
+      reject(err);
+    }
+
+    function resolver() {
+      if (typeof emitter.removeListener === 'function') {
         emitter.removeListener('error', errorListener);
       }
       resolve([].slice.call(arguments));
     };
-    var errorListener;
 
-    // Adding an error listener is not optional because
-    // if an error is thrown on an event emitter we cannot
-    // guarantee that the actual event we are waiting will
-    // be fired. The result could be a silent way to create
-    // memory or file descriptor leaks, which is something
-    // we should avoid.
+    eventTargetAgnosticAddListener(emitter, name, resolver, { once: true });
     if (name !== 'error') {
-      errorListener = function errorListener(err) {
-        emitter.removeListener(name, eventListener);
-        reject(err);
-      };
-
-      emitter.once('error', errorListener);
+      addErrorHandlerIfEventEmitter(emitter, errorListener, { once: true });
     }
-
-    emitter.once(name, eventListener);
   });
+}
+
+function addErrorHandlerIfEventEmitter(emitter, handler, flags) {
+  if (typeof emitter.on === 'function') {
+    eventTargetAgnosticAddListener(emitter, 'error', handler, flags);
+  }
+}
+
+function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
+  if (typeof emitter.on === 'function') {
+    if (flags.once) {
+      emitter.once(name, listener);
+    } else {
+      emitter.on(name, listener);
+    }
+  } else if (typeof emitter.addEventListener === 'function') {
+    // EventTarget does not have `error` event semantics like Node
+    // EventEmitters, we do not listen for `error` events here.
+    emitter.addEventListener(name, function wrapListener(arg) {
+      // IE does not have builtin `{ once: true }` support so we
+      // have to do it manually.
+      if (flags.once) {
+        emitter.removeEventListener(name, wrapListener);
+      }
+      listener(arg);
+    });
+  } else {
+    throw new TypeError('The "emitter" argument must be of type EventEmitter. Received type ' + typeof emitter);
+  }
 }
 
 },{}],37:[function(require,module,exports){

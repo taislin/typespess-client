@@ -20,8 +20,10 @@ function enqueue_icon_meta_load(client: Record<string, any>, newIcon: string) {
 			meta.__image_object.canvas.height = meta.__image_object.height;
 			meta.__image_object.ctx.drawImage(meta.__image_object, 0, 0);
 			meta.__image_data = meta.__image_object.ctx.getImageData(0, 0, meta.width, meta.height);
-			meta.width = meta.__image_object.width;
 			meta.height = meta.__image_object.height;
+			meta.animated_nr = Math.round(meta.__image_object.width/meta.__image_object.height);
+			meta.width = meta.height;
+			meta.animated = meta.animated_nr>1 ? 1 : 0;
 			resolve();
 			client.icon_meta_load_queue[newIcon] = void 0;
 		});
