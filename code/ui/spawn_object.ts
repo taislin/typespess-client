@@ -51,16 +51,15 @@ class SpawnObjectPanel {
 		})) {
 			const key: any = tkey;
 			const val: Record<string, any> = tval;
+			if(typeof val.tree_paths === "undefined"){continue;}
 			const template_elem = document.createElement("div");
 			template_elem.classList.add("template-entry");
 			template_elem.style.borderBottom = "1px solid grey";
 			template_elem.innerHTML = `
-<canvas class='item-preview float-left' width=32 height=32></canvas>
-<div class='button spawn-button float-right' dataset-template>Spawn</div>
-<div><b>${val.vars.name}</b></div>
-<div>
-	<i>${key}</i>
-</div>
+<canvas class='item-preview' width=32 height=32></canvas>
+<div><b>${val.vars.name}</b>&nbsp;(${key})</div>
+<div><i>${val.tree_paths}</i></div>
+<div class='button spawn-button' dataset-template>Spawn</div>
 `;
 			template_elem.dataset.templateKey = key;
 			template_elem.dataset.searchString = key + val.vars.name;

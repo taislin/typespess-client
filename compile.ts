@@ -15,7 +15,7 @@ const used_bundler = browserify({
 	cache: {},
 	packageCache: {},
 });
-used_bundler.bundle(function (err: string, buf: any) {
+used_bundler.transform("uglifyify", {global: true}).bundle(function (err: string, buf: any) {
 	if (err) {
 		throw new Error(err);
 	}
