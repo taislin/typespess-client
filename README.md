@@ -1,6 +1,5 @@
 # TypeSpess client
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Civ13_typespess-client&metric=alert_status)](https://sonarcloud.io/dashboard?id=Civ13_typespess-client)
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/Civ13/typespess-client)
 
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Civ13_typespess-client&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=Civ13_typespess-client)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Civ13_typespess-client&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=Civ13_typespess-client)
